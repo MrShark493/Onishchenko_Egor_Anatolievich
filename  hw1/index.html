@@ -13,32 +13,104 @@
  <body>
   <p>Задание N.03</p>
   <script>
-    let str_name;
-    let check1;
-    let str_age;
-    let check2;
-    let isMen;
+  (
+    function() { //решил программу записать в такую конструкцию, просто чтоб попрактиковаться.
 
-    do
-    {
-      str_name = "";
-      str_age = "";
-      str_name = prompt("Ваше имя", "");
-      check1 = (!isFinite(str_name))&&(str_name !== "");
-      str_age = prompt("Ваш возраст", '');
-      check2 = isFinite(str_age)&&(str_age !== "")&&(str_age > 0);
-      isMen = confirm("Ваш пол мужской?");
-    }
-    while ((check1 && check2) == false);
+      //перечисляю переменные, потому что повторно объявлять переменные в цикле - плохая идея
+      let str_name;
+      let check1;
+      let str_age;
+      let check2;
+      let isMen;
+      let try = 1;
 
-    alert(`
-      ваше ФИО: ${str_name}
-      ваш возраст в годах: ${str_age}
-      ваш возраст в днях: ${Number(str_age) * 365}
-      через 5 лет вам будет: ${Number(str_age) + 5}
-      ваш пол: ${(isMen?"Мужской":"Женский")}
-      вы на пенсии: ${(str_age >= 65)?"да":"нет"}
-      `);
+      //Функция проверки строки на наличие в ней чисел
+      function isHaveNumber(str) {
+        let res = false;
+
+        for (let i = 0; i < 10; i++){
+          if (str.indexOf(String(i)) != -1) {
+            res = true;
+            break;
+          }
+        }
+
+        return res;
+      }
+
+      // Функция проверки строки на наличие спецсимволов
+      function isHaveSpecialSymbols(str) {
+        let res = false;
+        let spec_char = "!\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~";
+
+        for (let i = 0; i < spec_char.length; i++) {
+          if (str.indexOf(spec_char[i]) != -1) {
+            res = true;
+            break;
+          }
+        }
+
+        return res;
+      }
+
+      // Функция обрезания строки. Только потом вспомнил что, что-то такое уже есть)))
+      function CutTheStringOff(str) {
+        let i = 0;
+
+        do {
+          if (str[i] == " "){
+            i++
+          }
+          else {
+            break;
+          }
+        } while (i < str.length);
+
+        let new_str = "";
+        for (i; i < str.length; i++) {
+          new_str += str[i];
+        }
+        return new_str;
+      }
+
+      // Основное тело программы.
+      // Опрашивает ФИО, возраст и пол человека.
+      // Если нажать ОК - мужской, если cancel - женский. К сожалению, учесть 100500 гендеров нельзя.
+      // -- Если строка имени содержит пробелы перед непосредственно текстом, то эти пробелы вырезаются.
+      // -- Дальше идет проверка по 5 пунктам:
+      // -- 1.1) Длина строки имени меньше 2.
+      // -- 1.2) Строка имени содержит числа.
+      // -- 1.3) Строка имени содержит спец символы. Да простит меня сын Илона Маска X-AE-A-12.
+      // -- 2.1) Строка возраста содержит любые символы кроме чисел.
+      // -- 2.2) Строка возраста содержит отрицательное значение.
+      do
+      {
+        try++;
+        str_name = ""; str_age = "";
+
+        str_name = prompt("Ваше ФИО", "");
+        str_age = prompt("Ваш возраст", '');
+        isMen = confirm("Ваш пол мужской?");
+        str_name = CutTheStringOff(str_name);
+
+        check_name = (str_name.length < 2)||(isHaveNumber(str_name))||(isHaveSpecialSymbols(str_name));
+
+        check_age = !isFinite(str_age)||(str_age == "")||(str_age < 0);
+      }
+      while ((check_name || check_age) == true);
+
+      //вывод финальной анкеты
+      alert(`
+        ваше ФИО: ${str_name}
+        ваш возраст в годах: ${str_age}
+        ваш возраст в днях: ${Number(str_age) * 365}
+        через 5 лет вам будет: ${Number(str_age) + 5}
+        ваш пол: ${(isMen?"Мужской":"Женский")}
+        вы на пенсии: ${(str_age >= 65)?"да":"нет"}
+        `);
+
+    }()
+  )
   </script>
  </body>
 
