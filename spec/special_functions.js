@@ -29,4 +29,18 @@ export const arr_generator = (size = 7, level = 0) => {
     return arr;
   }
 
-console.log(arr_generator());
+  const Arr_Sort = (arr) => {
+    let M = 0;
+
+    for (let i = 0; i < arr.length; i++) {
+      for (let j = i + 1; j < arr.length; j++) {
+        if (arr[i] < arr[j]) {
+          M = arr[i];
+          arr[i] = arr[j];
+          arr[j] = M;
+        }
+      }
+    }
+
+    return arr;
+  }

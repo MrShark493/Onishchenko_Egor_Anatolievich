@@ -22,7 +22,6 @@ const treeSum = (arr) => {
         break;
       }
       default: {
-        console.log("Error");
         return -1;
       }
     }
@@ -54,7 +53,7 @@ const arr_generator = (size = 7, level = 0) => {
   //    6    |           5%
 
   let arr = [];
-  const chance = 0.65 + level * 0.05;
+  const chance = 0.70 + level * 0.05;
     for (let i = 0; i < size; i++) {
       if (Math.random() < chance) {
         arr.push(Math.floor(Math.random() * 10));
