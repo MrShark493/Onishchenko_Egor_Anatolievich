@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+ <head>
+  <meta charset="utf-8" />
+  <title>HTML5</title>
+
+  <style>
+
+  </style>
+ </head>
+
+ <body>
+  <p>ПР N10</p>
+  <script>
+
+    "use strict";
+
+    //оставил все также. Выводит рандомное число в заданном диапазоне
+    function randomDiap(n,m) {
+            return Math.floor(Math.random()*(m-n+1))+n;
+    }
+
+    // переписал функцию. выводит массив неповторяющихся цветов
+    function mood(colorsCount) {
+        const colors=['красный', 'оранжевый', 'жёлтый', 'зелёный', 'голубой', 'синий', 'фиолетовый' ];
+        const arr = [];
+        let color;
+
+        do {
+          color = colors[randomDiap(0, colors.length - 1)];
+          if (!arr.includes(color)) {
+            arr.push(color);
+          }
+        } while(arr.length != colorsCount);
+
+        return arr;
+    }
+
+    console.log(`3 цвета: ${mood(3)}`);
+    console.log(`4 цвета: ${mood(4)}`);
+    console.log(`5 цветов: ${mood(5)}`);
+    console.log(`6 цветов: ${mood(6)}`);
+
+</script>
+ </body>
+
+</html>
