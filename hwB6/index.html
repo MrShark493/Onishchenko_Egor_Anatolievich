@@ -16,6 +16,10 @@
     const formatNumber = (num, format) => {
         let numString = String(num);
 
+        if (num % 1 === 0) {
+            numString += '.';
+        }
+
         let i = numString.indexOf('.');
         let j = format.indexOf('.');
         //форматируем целую часть строки
@@ -47,7 +51,7 @@
 
     const example1 = {ex_num: 12345.897, ex_format: '# ### ###.##'};
     const example2 = {ex_num: 2345.8, ex_format: '####.##'};
-    const example3 = {ex_num: 5.0, ex_format: '# ###.'};
+    const example3 = {ex_num: 5.00, ex_format: '# ###.##'};
 
     console.log(`
     Проверка 1 -> Число: ${example1.ex_num} Формат: ${example1.ex_format} -> Результат: ${formatNumber(example1.ex_num, example1.ex_format)}
