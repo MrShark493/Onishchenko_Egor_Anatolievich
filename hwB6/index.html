@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+<html>
+ <head>
+  <meta charset="utf-8" />
+  <title>HTML5</title>
+
+  <style>
+
+  </style>
+ </head>
+
+ <body>
+  <p>Задание B6</p>
+  <script>
+    const formatNumber = (num, format) => {
+        let numString = String(num);
+
+        let i = numString.indexOf('.');
+        let j = format.indexOf('.');
+        //форматируем целую часть строки
+        while (i >= 0 && j >= 0) {
+            if (format[j] == ' ') {
+                numString = numString.slice(0, i + 1).concat(' ',numString.slice(i + 1));
+                i += 1;
+            }
+            i -= 1;
+            j -= 1;
+        }
+
+        i = numString.length - 1 - numString.indexOf('.');
+        j = format.length - 1 - format.indexOf('.');
+        
+        //Если число символов после запятой недостаточно - дорисовываем нули
+        if (i < j) {
+            for (let k = 0; k < j - i; k += 1) {
+                numString += '0';
+            }
+        }
+
+        //Если чисто символов после запятой слишком много - строку обрезаем с округлением.
+        if (j < i) {
+            numString = numString.slice(0, numString.indexOf('.') + (i - j + 2));
+        }
+        return numString;
+    }
+
+    const example1 = {ex_num: 12345.897, ex_format: '# ### ###.##'};
+    const example2 = {ex_num: 2345.8, ex_format: '####.##'};
+    const example3 = {ex_num: 5.0, ex_format: '# ###.'};
+
+    console.log(`
+    Проверка 1 -> Число: ${example1.ex_num} Формат: ${example1.ex_format} -> Результат: ${formatNumber(example1.ex_num, example1.ex_format)}
+    Проверка 2 -> Число: ${example2.ex_num} Формат: ${example2.ex_format} -> Результат: ${formatNumber(example2.ex_num, example2.ex_format)}
+    Проверка 3 -> Число: ${example3.ex_num} Формат: ${example3.ex_format} -> Результат: ${formatNumber(example3.ex_num, example3.ex_format)}
+    `);
+  </script>
+ </body>
+
+</html>
