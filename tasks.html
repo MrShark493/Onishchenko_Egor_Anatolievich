@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>HTML5</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"> 
+        
+        <style>
+            * {
+                font-family: "Roboto Condensed", sans-serif;
+                font-size: 18px;
+            }
+
+            .globalContainer {
+                margin-left: auto;
+                margin-right: auto;
+                display: flex;
+                flex-direction: column;
+                justify-content: start;
+                align-items: center; 
+            }
+
+            .firstContainer {
+                border-bottom: 1px solid black; 
+            }
+
+            .firstContainer > p {
+                font-size: 24px;
+            }
+
+            ul {
+                list-style: none;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <div class="globalContainer">
+            <div class="firstContainer">
+                <p>Онищенко Егор</p>
+            </div>
+            <div class="secondContainer">
+                <p>ToDo-List сделанной домашки</p>
+            </div>
+            <div class="listContainer">
+                <ul id="listHandler">
+                </ul>
+            </div>
+        </div>
+
+        <script>
+            const ul = document.querySelector("#listHandler");
+            console.log(ul);
+            const hwList = {
+                "N.03 ANKETA": true, 
+                "N.05 TREESUM": true,
+                "N.07 VOWELS": false,
+                "N.10 MOOD": false,
+                "N.13 DRINKS_HASH_FUNC": false, 
+                "N.14 DRINKS_HASH_CLASS": false,
+                "N.17 VOWELS_ARR": false,
+                "N.20 ROOTS": true,
+                "N.23 DYN_FORM": false,
+                "N.27 VALID_FORM": false,
+                "N.30 DRAGNDROP": false,
+                "N.33 CLOCK_DOM": false,
+                "N.37 CLOCK_SVG": false,
+                "N.40 CLOCK_CANVAS": false,
+                "N.43 TENNIS_DOM": false,
+                "N.47 TENNIS_SVG": false,
+                "N.50 TENNIS_CANVAS": false,
+                "N.53 DRINKS_LOC_STORAGE": false,
+                "N.57 CLOCK_MVC": false,
+                "N.60 DYN_FORM_AJAX": false,
+                'N.63 DRINKS_AJAX_STORAGE': false,
+                "N.67 ENCYCLO": false,
+                "N.70 VALID_FORM_AJAX": false,
+                "A2": false, 
+                "A3": true, 
+                "A4": false, 
+                "B1": false, 
+                "B2": false, 
+                "B3": false, 
+                "B4": false, 
+                "B5": false, 
+                "B6": false
+            };
+
+            //просто скопировал конструктор тегов. Делал для одного из своих проектов
+            const addTagElement = (stringTagName, objectParentElement = body, objectAttributes = {}, objectStyles = {}, objectEvents = {}) => {
+                //создает элемент 
+                let tag = document.createElement(stringTagName);
+                //просматриваем переданный объект с аттрибутами
+                for (let attribute in objectAttributes) {
+                    tag[attribute] = objectAttributes[attribute];
+                }
+
+                //добавляем перечисляемые стили
+                let stringStyles = '';
+                for (let style in objectStyles) {
+                    stringStyles += style + ": " + objectStyles[style] + '; ';
+                    tag.setAttribute('style', stringStyles);
+                }
+
+                //добавляем обработчики событий
+                for (let event in objectEvents) {
+                    tag.addEventListener(event, objectEvents[event]);
+                }
+
+                //если есть необходимость - добавляем родиетльский элемент
+                if (objectParentElement != null) {
+                    objectParentElement.appendChild(tag);
+                }    
+
+                //если понадобится этот тег в виде объекта в дальнейшем - функцция возвращет его.
+                return tag;
+            }
+
+            for (let elem in hwList) {
+                let li = addTagElement('li', ul);
+                if (hwList[elem] !== true) {
+                    li.innerHTML = `${elem}`;
+                }
+                else {
+                    li.innerHTML = `<s>${elem}</s>`;
+                }
+            }
+        </script>
+    </body>
+
+</html>
