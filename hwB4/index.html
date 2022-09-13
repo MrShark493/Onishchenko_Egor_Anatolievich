@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html>
+ <head>
+  <meta charset="utf-8" />
+  <title>HTML5</title>
+
+  <style>
+
+  </style>
+ </head>
+
+ <body>
+  <p>Задание B4</p>
+  <script>
+    const buildWrapper = (tag) => {
+        const func = (text) => {
+            const regexp = /[\<\>\'\"\&]/;
+            let arr = text.split('');
+            arr = arr.map(symbol => {
+                switch (symbol) {
+                    case `<`:
+                        return `&gt;`;
+                        break;
+                    case `>`:
+                        return `&lt;`;
+                        break;
+                    case `'`:
+                        return `&#39;`;
+                        break;
+                    case `"`:
+                        return `&quot;`
+                        break;
+                    case `&`:
+                        return `&amp;`;
+                        break;
+                    default:
+                        return symbol;
+                }
+            });
+            text = arr.join('');
+            return `<${tag}>${text}<${tag}>`
+        }
+        return func;
+    }
+    const wrapH1 = buildWrapper('h1');
+    const wrapP = buildWrapper('p');
+
+    console.log(`
+    Проверка 1. Тривиальное обертывание в тег h1    -> ${wrapH1('СТИХИ')}
+    Проверка 2. Обертывание в тег p фразы.          -> ${wrapP('Однажды в студеную зимнюю пору')}
+    Проверка 3. Замена символов на мнемонику        -> ${wrapP(`Вкусные M&M's`)}
+    `);
+  </script>
+ </body>
+
+</html>
