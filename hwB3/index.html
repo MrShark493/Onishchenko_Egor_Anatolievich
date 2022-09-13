@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+
+<html>
+ <head>
+  <meta charset="utf-8" />
+  <title>HTML5</title>
+
+  <style>
+
+  </style>
+ </head>
+
+ <body>
+  <p>Задание B3</p>
+  <script>
+    const example1 = '11+222-3333*2/6';
+    const example2 = '11+(26*3)';
+    const example3 = '-10+12';
+    const example4 = '4.567 - 3.183';
+    const example5 = '(12-10)*3';
+    const example6 = '(12-10)/(2-4)';
+
+    const calculate = (arr, i) => {
+        //функция расчета операции между двумя элементами
+        switch (arr[i]) {
+            case '+':
+                return Number(arr[i - 1]) + Number(arr[i + 1]);
+                break;
+            case '-':
+                return Number(arr[i - 1]) - Number(arr[i + 1]);
+                break;
+            case '*':
+                return Number(arr[i - 1]) * Number(arr[i + 1]);
+                break;
+            case '/':
+                return Number(arr[i - 1]) / Number(arr[i + 1]);
+                break;
+        }
+    } 
+    const reader = (exmpl) => {
+        //Читатель. Читает строку и разбивает ее на массив чисел и операций
+        const regexp = /[\+\-\/\*]/;
+        const exmpl_arr = [];
+        let temp_i = -1;
+        for (let i = 0; i < exmpl.length; i += 1) {
+            if ((regexp.test(exmpl[i]) === true) && (i != 0)) {
+                exmpl_arr.push(exmpl.substring(temp_i + 1, i));
+                exmpl_arr.push(exmpl[i]);
+                temp_i = i;
+            }
+            if (exmpl[i] === '(') {
+                for (let j = i; j < exmpl.length; j += 1) {
+                    if (exmpl[j] === ')') {
+                        exmpl_arr.push(reader(exmpl.substring(i + 1, j)));
+                        i = j;
+                        temp_i = i;
+                        break;
+                    }
+                }
+            }
+            if (i === exmpl.length - 1 && (temp_i != i)) {
+                exmpl_arr.push(exmpl.substring(temp_i + 1));
+            }
+        }
+        return exmpl_arr.filter(elem => elem != '');
+    }
+
+    const calculator = (exmpl_arr) => {
+        //условие выхода из рекурсивной функции - закончились операции для подсчета. То есть в массиве должно остаться только число
+        if (exmpl_arr.length === 1) return exmpl_arr[0];
+
+        //
+        for (let i = 0; i < exmpl_arr.length; i += 1) {
+            if (typeof exmpl_arr[i] === 'object') {
+                exmpl_arr[i] = calculator(exmpl_arr[i]);
+            }
+        }
+        for (let i = 0; i < exmpl_arr.length; i += 1) {
+            if (/[\/\*]/.test(exmpl_arr[i]) && exmpl_arr[i].length === 1) {
+                let temp_arr = exmpl_arr.slice(0, i - 1);
+                temp_arr.push(calculate(exmpl_arr, i));
+                return calculator(temp_arr.concat(exmpl_arr.slice(i + 2)));
+            }
+        }
+        for (let i = 0; i < exmpl_arr.length; i += 1) {
+            if (/[+-]/.test(exmpl_arr[i]) && exmpl_arr[i].length === 1) {
+                let temp_arr = exmpl_arr.slice(0, i - 1);
+                temp_arr.push(calculate(exmpl_arr, i));
+                return calculator(temp_arr.concat(exmpl_arr.slice(i + 2)));
+            }
+        }
+    }
+
+    console.log(`
+    Example 1: ${example1} -> Answer: ${calculator(reader(example1))}
+    Example 2: ${example2} -> Answer: ${calculator(reader(example2))}
+    Example 3: ${example3} -> Answer: ${calculator(reader(example3))}
+    Example 4: ${example4} -> Answer: ${calculator(reader(example4))}
+    Example 5: ${example5} -> Answer: ${calculator(reader(example5))}
+    Example 6: ${example6} -> Answer: ${calculator(reader(example6))}
+    `);
+  </script>
+ </body>
+
+</html>
