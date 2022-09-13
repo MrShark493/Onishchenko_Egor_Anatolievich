@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html>
+ <head>
+  <meta charset="utf-8" />
+  <title>HTML5</title>
+
+  <style>
+
+  </style>
+ </head>
+
+ <body>
+  <p>Задание B1</p>
+  <script>
+    const year = prompt('введите год', '');
+
+    const yearToCentury = (num) => {
+        return Math.floor((num - 1) / 100 + 1)
+    }
+
+    alert(`
+    Ваш год: ${year}
+    Век, к которому относится данный год: ${yearToCentury(year)}
+    `);
+
+    const random_arr = [Math.round(Math.random() * 10000), Math.round(Math.random() * 10000), Math.round(Math.random() * 10000)];
+
+    console.log(`Проверка 1. Рандомный год. Год: ${random_arr[0]} -> Век: ${yearToCentury(random_arr[0])}`);
+    console.log(`Проверка 2. Рандомный год. Год: ${random_arr[1]} -> Век: ${yearToCentury(random_arr[1])}`);
+    console.log(`Проверка 3. Рандомный год. Год: ${random_arr[2]} -> Век: ${yearToCentury(random_arr[2])}`);
+    console.log(`Проверка 4. Год: ${1999} -> Век: ${yearToCentury(1999)}`);
+    console.log(`Проверка 5. Год: ${2000} -> Век: ${yearToCentury(2000)}`);
+    console.log(`Проверка 6. Год: ${2001} -> Век: ${yearToCentury(2001)}`);
+  </script>
+ </body>
+
+</html>
