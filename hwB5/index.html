@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html>
+ <head>
+  <meta charset="utf-8" />
+  <title>HTML5</title>
+
+  <style>
+
+  </style>
+ </head>
+
+ <body>
+  <p>Задание B5</p>
+  <script>
+    const mnemoniker = (text) => {
+        const regexp = /[\<\>\'\"\&]/;
+        return text.split('').map(symbol => {
+            switch (symbol) {
+                case `<`:
+                    return `&gt;`;
+                    break;
+                case `>`:
+                    return `&lt;`;
+                    break;
+                case `'`:
+                    return `&#39;`;
+                    break;
+                case `"`:
+                    return `&quot;`
+                    break;
+                case `&`:
+                    return `&amp;`;
+                    break;
+                default:
+                    return symbol;
+            }
+        }).join('');        
+    }
+
+    const buildWrapper = (tag) => {
+        const func = (text, attributes) => {
+            let attrib_string = '';
+            for (let elem in attributes) {
+                attrib_string += ` ${elem}='${mnemoniker(attributes[elem])}'`
+            }
+            return `<${tag}${attrib_string}>${mnemoniker(text)}<${tag}>`
+        }
+        return func;
+    }
+    const wrapH1 = buildWrapper('h1');
+    const wrapP = buildWrapper('p');
+
+    console.log(`
+    Проверка 1. -> ${wrapH1('СТИХИ', {align: 'center', title: "M&M's"})}
+    Проверка 2. -> ${wrapP('Однажды в студеную зимнюю пору', {fontSize: '24', backgroundColor: 'black'})}
+    Проверка 3. -> ${wrapP(`Вкусные M&M's`, {lang: 'ru'})}
+    `);
+  </script>
+ </body>
+
+</html>
