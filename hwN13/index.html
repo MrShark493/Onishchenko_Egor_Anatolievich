@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <style>
+            *{
+                margin: 0;
+                padding: 0;
+                font-size: 18px;
+            }
+
+            header > div {
+                border-bottom: 1px solid black;
+                font-size: 24px;
+                padding: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div>
+                <p>Задание N.13 DRINKS_HASH_FUNC</p>
+            </div>
+        </header>
+
+        <script>
+            function HashStorageFunc() {
+                var storage = {};
+
+                this.addValue = function(key, value) {
+                    storage[key] = value;
+                }
+
+                this.getValue = function(key) {
+                    return (key in storage)?(storage[key]):(false);
+                }
+
+                this.deleteValue = function(key) {
+                    delete storage[key];
+                }
+
+                this.getKeys = function() {
+                    const arr = [];
+                    for (let elem in storage){
+                        arr.push(elem);
+                    }
+                    return arr;
+                }
+            }
+
+            const drinkStorage = new HashStorageFunc();
+            //добавим пробничек
+            drinkStorage.addValue('Mohito', {
+                alko: true,
+                ingridientes: ["lime", "lemon", "gin", "mint", "ice", "tonic"],
+                receipt: ["Stir it up"]
+            });
+
+            drinkStorage.addValue("I-am-cool", {
+                alko: true,
+                ingridientes: ["Cola", "Whiskey"]
+            });
+
+            drinkStorage.addValue("Bad Receipt", {
+                alko: false,
+                ingridientes: ["Sprite", "Fanta"]
+            })
+
+            console.log(drinkStorage.getKeys());
+            console.log(drinkStorage.getValue("Mohito"));
+            console.log(drinkStorage.getValue("I-am-cool"));
+            console.log(drinkStorage.getValue("Bad Receipt"));
+            drinkStorage.deleteValue("Bad Receipt")
+            console.log(drinkStorage.getValue("Bad Receipt"));
+
+            /////////////////////////////////////////////////////////////
+
+            function formConstructor(drinkObject) {
+                     
+            }
+        </script>
+    </body>
+</html>

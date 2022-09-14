@@ -23,11 +23,11 @@
                 align-items: center; 
             }
 
-            .firstContainer {
+            .textContainer {
                 border-bottom: 1px solid black; 
             }
 
-            .firstContainer > p {
+            .textContainer > p {
                 font-size: 24px;
             }
 
@@ -40,11 +40,16 @@
 
     <body>
         <div class="globalContainer">
-            <div class="firstContainer">
+            <div class="textContainer">
                 <p>Онищенко Егор</p>
             </div>
-            <div class="secondContainer">
+            <div class="textContainer">
                 <p>ToDo-List сделанной домашки</p>
+            </div>
+            <div class="textContainer">
+                <p> Зачеркнуто: сделанно </p>
+                <p> Жирный шрифт: ожидает проверки </p>
+                <p> Ничего: не сделано ещё </p>
             </div>
             <div class="listContainer">
                 <ul id="listHandler">
@@ -56,38 +61,38 @@
             const ul = document.querySelector("#listHandler");
             console.log(ul);
             const hwList = {
-                "N.03 ANKETA": true, 
-                "N.05 TREESUM": true,
-                "N.07 VOWELS": false,
-                "N.10 MOOD": false,
-                "N.13 DRINKS_HASH_FUNC": false, 
-                "N.14 DRINKS_HASH_CLASS": false,
-                "N.17 VOWELS_ARR": false,
-                "N.20 ROOTS": true,
-                "N.23 DYN_FORM": false,
-                "N.27 VALID_FORM": false,
-                "N.30 DRAGNDROP": false,
-                "N.33 CLOCK_DOM": false,
-                "N.37 CLOCK_SVG": false,
-                "N.40 CLOCK_CANVAS": false,
-                "N.43 TENNIS_DOM": false,
-                "N.47 TENNIS_SVG": false,
-                "N.50 TENNIS_CANVAS": false,
-                "N.53 DRINKS_LOC_STORAGE": false,
-                "N.57 CLOCK_MVC": false,
-                "N.60 DYN_FORM_AJAX": false,
-                'N.63 DRINKS_AJAX_STORAGE': false,
-                "N.67 ENCYCLO": false,
-                "N.70 VALID_FORM_AJAX": false,
-                "A2": false, 
-                "A3": true, 
-                "A4": false, 
-                "B1": false, 
-                "B2": false, 
-                "B3": false, 
-                "B4": false, 
-                "B5": false, 
-                "B6": false
+                "N.03 ANKETA": "done", 
+                "N.05 TREESUM": "done",
+                "N.07 VOWELS": "ready",
+                "N.10 MOOD": "ready",
+                "N.13 DRINKS_HASH_FUNC": "none", 
+                "N.14 DRINKS_HASH_CLASS": "none",
+                "N.17 VOWELS_ARR": "none",
+                "N.20 ROOTS": "done",
+                "N.23 DYN_FORM": "none",
+                "N.27 VALID_FORM": "none",
+                "N.30 DRAGNDROP": "none",
+                "N.33 CLOCK_DOM": "none",
+                "N.37 CLOCK_SVG": "none",
+                "N.40 CLOCK_CANVAS": "none",
+                "N.43 TENNIS_DOM": "none",
+                "N.47 TENNIS_SVG": "none",
+                "N.50 TENNIS_CANVAS": "none",
+                "N.53 DRINKS_LOC_STORAGE": "none",
+                "N.57 CLOCK_MVC": "none",
+                "N.60 DYN_FORM_AJAX": "none",
+                'N.63 DRINKS_AJAX_STORAGE': "none",
+                "N.67 ENCYCLO": "none",
+                "N.70 VALID_FORM_AJAX": "none",
+                "A2": "ready", 
+                "A3": "done", 
+                "A4": "ready", 
+                "B1": "ready", 
+                "B2": "ready", 
+                "B3": "ready", 
+                "B4": "ready", 
+                "B5": "ready", 
+                "B6": "ready"
             };
 
             //просто скопировал конструктор тегов. Делал для одного из своих проектов
@@ -122,11 +127,17 @@
 
             for (let elem in hwList) {
                 let li = addTagElement('li', ul);
-                if (hwList[elem] !== true) {
-                    li.innerHTML = `${elem}`;
-                }
-                else {
-                    li.innerHTML = `<s>${elem}</s>`;
+
+                switch (hwList[elem]){
+                    case "done":
+                        li.innerHTML = `<s>${elem}</s>`;
+                        break;
+                    case "ready": 
+                        li.innerHTML = `<b>${elem}</b>`;
+                        break;
+                    case "none": 
+                        li.innerHTML = `${elem}`;
+                        break;
                 }
             }
         </script>
