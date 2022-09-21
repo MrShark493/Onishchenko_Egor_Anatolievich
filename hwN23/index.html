@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <style>
+            *{
+                margin: 0;
+                padding: 0;
+                font-size: 18px;
+            }
+
+            header > div {
+                border-bottom: 1px solid black;
+                font-size: 24px;
+                padding: 5px;
+            }
+
+            #payment {
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+
+            .container {
+                padding: 10px;
+                border-bottom: 1px solid black;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div>
+                <p>Задание N.23 DYN_FORM</p>
+            </div>
+        </header>
+        <div id="globalContainer">
+            <div class="container">
+                <form id="form1"></form>
+            </div>
+            <div class="container">
+                <form id="form2"></form>
+            </div>
+        </div>
+
+        <script>
+            const formDef1 =
+                [
+                {label:'Название сайта:',       kind:'longtext',    name:'sitename'},
+                {label:'URL сайта:',            kind:'longtext',    name:'siteurl'},
+                {label:'Посетителей в сутки:',  kind:'number',      name:'visitors'},
+                {label:'E-mail для связи:',     kind:'shorttext',   name:'email'},
+                {label:'Рубрика каталога:',     kind:'combo',       name:'division',    variants:[
+                                                                                            {text:'здоровье',       value:1},
+                                                                                            {text:'домашний уют',   value:2},
+                                                                                            {text:'бытовая техника',value:3}
+                                                                                            ]},
+                {label:'Размещение:',           kind:'radio',       name:'payment',     variants:[
+                                                                                            {text:'бесплатное',value:1},
+                                                                                            {text:'платное',value:2},
+                                                                                            {text:'VIP',value:3}
+                                                                                            ]},
+                {label:'Разрешить отзывы:',     kind:'check',       name:'votes'},
+                {label:'Описание сайта:',       kind:'memo',        name:'description'},
+                {caption:'Опубликовать',        kind:'submit'}
+                ];
+
+            const formDef2 = [
+                {label:'Фамилия:',              kind:'longtext',    name:'lastname'},
+                {label:'Имя:',                  kind:'longtext',    name:'firstname'},
+                {label:'Отчество:',             kind:'longtext',    name:'secondname'},
+                {label:'Возраст:',              kind:'number',      name:'age'},
+                {caption:'Зарегистрироваться',  kind:'submit'},
+            ];
+
+            const elementConstructor = (tagString, objectParentElement = body, objectAttributes = {}) => {
+                //порезанная версия конструктора тегов из моих проектов
+                let element = document.createElement(tagString);
+                for (let attribute in objectAttributes) {
+                    element[attribute] = objectAttributes[attribute];
+                }
+                if (objectParentElement != null) {
+                    objectParentElement.appendChild(element);
+                }    
+                return element;
+            }
+
+            const formConstructor = (form, formArray) => {
+                for (let element of formArray){
+                    //console.log(element);
+                    let label = document.createElement("label");
+                    label.textContent = ("")||(element.label);
+                    //label встречается почти везде. Можно попробовать все поля формы оборачивать в этот тег
+                    //Далее, мы смотрим параметр kind 
+                    //longtext, shorttext, number - будет тег input.
+                    let input;
+                    switch (element.kind) {
+                        case 'longtext':
+                            elementConstructor("input", label, {"type": "text", "name": element.name});
+                            break;
+                        case 'shorttext':
+                            elementConstructor("input", label, {"type": "text", "name": element.name});
+                            break;
+                        case 'number':
+                            elementConstructor("input", label, {"type": "number", "name": element.name});
+                            break;
+                        case 'submit':
+                            elementConstructor("input", label, {"type": "submit", "caption": element.caption});
+                            break;
+                        case "combo": 
+                            input = document.createElement("select");
+                            input.setAttribute("name", element.name);
+                            for (let prop of element.variants) {
+                                elementConstructor("option", input, {"value": prop.value, "textContent": prop.text});
+                            };
+                            label.appendChild(input);
+                            break;
+                        case "radio": 
+                            for (let prop of element.variants) {
+                                elementConstructor("input", label, {"type": "radio", "name": element.name, "id": element.name, "value": prop.value});
+                                elementConstructor("label", label, {"textContent": prop.text, "for": element.name});
+                            }
+                            break;
+                        case "check":
+                            elementConstructor("input", label, {"type": 'checkbox', "name": element.name});
+                            break;
+                        case "memo":
+                            elementConstructor("textarea", label, {"name": element.name});
+                            break;
+                    }
+                    form.appendChild(label);
+                    form.appendChild(document.createElement('br'));
+                }
+            };
+
+            formConstructor(document.querySelector("#form1"), formDef1);
+            formConstructor(document.querySelector("#form2"), formDef2);
+        </script>
+    </body>
+</html>
