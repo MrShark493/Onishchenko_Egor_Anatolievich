@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <style>
+            *{
+                margin: 0;
+                padding: 0;
+                font-size: 18px;
+            }
+
+            header > div {
+                border-bottom: 1px solid black;
+                font-size: 24px;
+                padding: 5px;
+            }
+            form {
+                border: 1px solid black;
+                width: 600px;
+                display: flex;
+                flex-direction: column;
+            }
+            label {
+                margin-top: 5px;
+                margin-bottom: 5px;
+            }
+
+            .errorLabel {
+                color: red;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div>
+                <p>Задание N.27 VALID_FORM</p>
+            </div>
+        </header>
+        <div id="globalContainer">
+            <form id="form1">
+                <label id="developersLabel">
+                    Разработчики:
+                    <input type="text" id="developers">
+                </label><br>
+                <label id="siteNameLabel">
+                    Название сайта:
+                    <input type="text" id="siteName">
+                </label><br>
+                <label id="urlNameLabel">
+                    URL сайта:
+                    <input type="text" id="urlName">
+                </label><br>
+                <label id="startDateLabel">
+                    Дата запуска сайта:
+                    <input type="date" id="startDate">
+                </label><br>
+                <label id="visitorsCounterLabel">
+                    Посетителей в сутки:
+                    <input type="number" id="visitorsCounter">
+                </label><br>
+                <label id="emailNameLabel">
+                    E-mail для связи:
+                    <input type="email" id="emailName">
+                </label><br>
+                <label>
+                    Рубрики каталога:
+                    <select id="catalog">
+                        <option value="health">Здоровье</option>
+                        <option value="home">Домашний уют</option>
+                        <option value="household">Бытовая техника</option>
+                    </select>
+                </label><br>
+                <label>
+                    Размещение:
+                    <input type="radio" class="payment" value="1" checked><label for="payment">Бесплатное</label>
+                    <input type="radio" class="payment" value="2"><label for="payment">Платное</label>
+                    <input type="radio" class="payment" value="3"><label for="payment">VIP</label>
+                </label><br>
+                <label>
+                    Разрешить отзывы:
+                    <input type="checkbox" id="votes">
+                </label><br>
+                <label>
+                    Описание сайта:
+                    <textarea id="describtion"></textarea>
+                </label><br>
+                <input type="submit" caption="Опубликовать">
+            </form>
+        </div>
+        <script>
+            let form = document.querySelector("#form1");
+            form.addEventListener("submit", (event) => {
+                let errorLabels = document.querySelectorAll(".errorLabel");
+                if (errorLabels !== null) {
+                    for (let prop of errorLabels) {
+                        prop.remove();
+                    }
+                }
+
+                event.preventDefault();
+                //для более детального фидбека, статус валидации будет в виде объекта
+                let validationInfo = {
+                    developers: false,
+                    siteName: false,
+                    urlName: false,
+                    startDate: false,
+                    visitorsCounter: false,
+                    emailName: false
+                };
+                //начинаем непосредственно проверку
+                if (document.querySelector("#developers").value !== "") {
+                    validationInfo.developers = true;
+                };
+
+                if (document.querySelector("#siteName").value !== "") {
+                    validationInfo.siteName = true;
+                };
+
+                if (/\.\w\w/.test(document.querySelector("#urlName").value)) {
+                    validationInfo.urlName = true;
+                };
+
+                const date = new Date(document.querySelector("#startDate").value);
+                const dateNow = new Date();
+                if (date <= dateNow) {
+                    validationInfo.startDate = true;
+                };
+                if (document.querySelector("#visitorsCounter").value >= 0 && !!document.querySelector("#visitorsCounter").value) {
+                    validationInfo.visitorsCounter = true;
+                };
+
+                if (/^[\w]{1}[\w-\.]*@[\w-]+\.[a-z]{2,4}$/i.test(document.querySelector("#emailName").value)) {
+                    validationInfo.emailName = true;
+                };
+                for (let prop in validationInfo) {
+                    if(validationInfo[prop] === false) {
+                        let tagName = `#${prop}Label`;
+                        let errorLabel = document.createElement("label");
+                        errorLabel.textContent = `Неверные данные !`;
+                        errorLabel.setAttribute("class", "errorLabel");
+                        document.querySelector(tagName).appendChild(errorLabel);
+                    }
+                }
+            })
+        </script>
+    </body>
+</html>
