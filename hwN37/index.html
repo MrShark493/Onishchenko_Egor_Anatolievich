@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <style>
+            *{
+                margin: 0;
+                padding: 0;
+                font-size: 18px;
+            }
+
+            header > div {
+                border-bottom: 1px solid black;
+                font-size: 24px;
+                padding: 5px;
+            }
+
+            #globalContainer {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .base {
+                position: absolute;
+                border-radius: 50%;
+                border: 1px solid black;
+                background-color: burlywood;
+            }
+
+            .base > #arrowSeconds {
+                position: absolute;
+                height: 2px;
+                background: linear-gradient(to right, transparent 50%, red 50%);
+                border-radius: 1px;
+            }
+
+            .base > #arrowMinutes {
+                position: absolute;
+                height: 4px;
+                background: linear-gradient(to right, transparent 50%, black 50%);
+                border-radius: 2px;
+            }
+
+            .base > #arrowHours {
+                position: absolute;
+                height: 8px;
+                background: linear-gradient(to right, transparent 50%, grey 50%);
+                border-radius: 4px;
+            }
+
+            .number {
+                display: block;
+                position: absolute;
+                border-radius: 50%;
+                border: 1px solid black;
+                background-color: grey;
+            }
+
+            .number > div {
+                width: 50%;
+                height: 50%;
+                margin: auto;
+            }
+
+            .number > div > label {
+                text-align: center;
+                width: 50%;
+                color: white;
+                position: absolute;
+            }
+
+            .initiate {
+                border: 1px solid black;
+                width: 200px;
+                height: 100px;
+                margin: 200px auto;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div>
+                <p>Задание N.33 CLOCK_DOM</p>
+            </div>
+        </header>
+        <div id="globalContainer">
+            <div class="initiate">
+                <input type="number" id="diameterInput" placeholder="200">
+                <button id="deployButton"">Построить часы</button>
+            </div>
+        </div>
+        <script>
+            const calculator = (diamBase, count) => {
+                const angle = 2*Math.PI/count;
+                const radius = diamBase / 2 * 0.75;
+                const coordinatesArray = [];
+                for (let i = 0; i < count; i += 1) {
+                    let X = diamBase / 2 + (radius * Math.sin(angle * i));
+                    let Y = diamBase / 2 - (radius * Math.cos(angle * i));
+                    let dial = new RoundObject(X, Y, diamBase * 0.125);
+                    coordinatesArray.push(dial);
+                }
+                return coordinatesArray;
+            };
+
+            class RoundObject{
+                constructor(centerX, centerY, diameter){
+                    this.centerX = centerX;
+                    this.centerY = centerY;
+                    this.hookX = centerX - diameter/2;
+                    this.hookY = centerY - diameter/2;
+                    this.diameter = diameter;                    
+                }
+            };
+
+            class Arrow {
+                constructor(length, hookX, hookY, state){
+                    this.length = length;
+                    this.hookX = hookX;
+                    this.hookY = hookY ;
+                    this.timeState = state;
+                    this.arrowAngle = state * 360;
+                }
+
+                stateUpdate(newState) {
+                    this.timeState = newState;
+                    this.arrowAngle = newState * 360 - 90;
+                }
+            }
+
+            const objectBuilder = (tag, attributes, styles) => {
+                let DOMobj = document.createElement(tag);
+                for (let property in attributes) {
+                    DOMobj.setAttribute(property, attributes[property]);
+                }
+                for (let property in styles) {
+                    DOMobj.style[property] = styles[property];
+                }
+                return DOMobj;
+            };
+
+            const svgBuilder = (tag, attributes, textContent = "", styles) => {
+                const obj = document.createElementNS("http://www.w3.org/2000/svg", tag);
+                for (let property in attributes) {
+                    obj.setAttribute(property, attributes[property]);
+                };
+                obj.textContent = textContent;
+                for (let property in styles) {
+                    obj.style[property] = styles[property];
+                };
+                return obj;
+            }
+
+            let Clocks;
+
+            const deployClock = (parameterDiam = 400) => {
+                document.querySelector("#globalContainer").innerHTML = `<svg id="SSS" width="${parameterDiam}" height="${parameterDiam}"></svg>`;
+
+                Clocks = {
+                    base: new RoundObject(parameterDiam/2, parameterDiam/2, parameterDiam),
+                    dial: calculator(parameterDiam, 12),
+                    //для DOM надо длину делать в 2 раза больше. Для Canvas и SVG - обычную.
+                    arrowSeconds: new Arrow(parameterDiam*0.375, parameterDiam * 0.125, parameterDiam/2, 0),
+                    arrowMinutes: new Arrow(parameterDiam*0.325, parameterDiam * 0.175, parameterDiam/2, 0),
+                    arrowHours: new Arrow(parameterDiam*0.275, parameterDiam * 0.225, parameterDiam/2, 0),
+                    updateTime: (seconds, minutes = 0, hours = 0) => {
+                        Clocks.arrowSeconds.stateUpdate(seconds / 60);
+                        Clocks.arrowMinutes.stateUpdate(minutes / 60 + seconds / 3600);
+                        Clocks.arrowHours.stateUpdate(hours / 12 + minutes / 720);
+                    }
+                }
+                
+                svgUpdate();
+            }
+
+            const svgClear = () => {
+                const svg = document.querySelector("#SSS"); 
+                svg.innerHTML = ``;
+            };
+
+            const svgUpdate = () => {
+                //здесь участок кода рисующий часы
+                const svg = document.querySelector("#SSS"); 
+                const base = svgBuilder("ellipse", 
+                    {
+                        "cx": Clocks.base.centerX, 
+                        "cy": Clocks.base.centerY, 
+                        "rx": Clocks.base.diameter/2, 
+                        "ry": Clocks.base.diameter/2, 
+                        "fill": "burlywood", 
+                        "stroke": "black"
+                    });    
+                svg.appendChild(base);  
+                let count = 12;
+                for (let obj of Clocks.dial) {
+                    if (count === 13) {
+                        count = 1;
+                    }
+                    let dial = svgBuilder("ellipse", {"cx": String(obj.centerX), "cy": String(obj.centerY), "rx": String(obj.diameter/2), "ry": String(obj.diameter/2), "fill": "grey"});
+                    let fontSize = 12*(Clocks.base.diameter/200);
+                    let text = svgBuilder("text", {"x": String(obj.centerX - fontSize/2), "y": String(obj.centerY + fontSize/4)}, String(count), {"font-size": `${fontSize}px`});
+                    svg.appendChild(dial);
+                    svg.appendChild(text);
+                    count += 1;
+                }    
+                let arrowSS = svgBuilder(
+                    "line", 
+                    {
+                        "x1": String(Clocks.base.centerX), 
+                        "y1": String(Clocks.base.centerY), 
+                        "x2": String(Clocks.base.centerX + Clocks.arrowSeconds.length), 
+                        "y2": String(Clocks.base.centerY),
+                        "stroke": "red",
+                        "stroke-width": "2",
+                        "transform": `rotate(${Clocks.arrowSeconds.arrowAngle} ${Clocks.base.centerX} ${Clocks.base.centerY})`
+                    });
+                   
+                let arrowMM = svgBuilder(
+                    "line", 
+                    {
+                        "x1": String(Clocks.base.centerX), 
+                        "y1": String(Clocks.base.centerY), 
+                        "x2": String(Clocks.base.centerX + Clocks.arrowMinutes.length), 
+                        "y2": String(Clocks.base.centerY),
+                        "stroke": "black",
+                        "stroke-width": "4",
+                        "transform": `rotate(${Clocks.arrowMinutes.arrowAngle} ${Clocks.base.centerX} ${Clocks.base.centerY})`
+                    });
+
+                let arrowHH = svgBuilder(
+                    "line", 
+                    {
+                        "x1": String(Clocks.base.centerX), 
+                        "y1": String(Clocks.base.centerY), 
+                        "x2": String(Clocks.base.centerX + Clocks.arrowHours.length), 
+                        "y2": String(Clocks.base.centerY),
+                        "stroke": "grey",
+                        "stroke-width": "8",
+                        "transform": `rotate(${Clocks.arrowHours.arrowAngle} ${Clocks.base.centerX} ${Clocks.base.centerY})`
+                    });
+
+                svg.appendChild(arrowSS);
+                svg.appendChild(arrowMM);
+                svg.appendChild(arrowHH);
+            }
+
+            document.querySelector("#deployButton").addEventListener("click", () => {
+                let param = Number(document.querySelector("#diameterInput").value);
+                console.log(param);
+                if (param <= 800 && param >= 200) {
+                    deployClock(param);
+                    setInterval(() => {
+                        let date = new Date();
+                            console.log(`
+                            -------------------
+                            seconds ${date.getSeconds()}
+                            minutes ${date.getMinutes()}
+                            hours ${date.getHours()}
+                            -------------------
+                            `);
+                        Clocks.updateTime(date.getSeconds(), date.getMinutes(), date.getHours());
+                        //здесь участок кода обновляющий svg стрелок
+                        svgClear();
+                        svgUpdate();
+                        //                         
+                    }, 1000);
+                }
+                else {
+                    console.log("Error");
+                }
+            });
+        </script>
+    </body>
+</html>
