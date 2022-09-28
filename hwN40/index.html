@@ -35,7 +35,7 @@
     <body>
         <header>
             <div>
-                <p>Задание N.37 CLOCK_SVG</p>
+                <p>Задание N.40 CLOCK_CANVAS</p>
             </div>
         </header>
         <div id="globalContainer">
@@ -109,15 +109,15 @@
             let Clocks;
 
             const deployClock = (parameterDiam = 400) => {
-                document.querySelector("#globalContainer").innerHTML = `<svg id="SSS" width="${parameterDiam}" height="${parameterDiam}"></svg>`;
+                document.querySelector("#globalContainer").innerHTML = ``;
 
                 Clocks = {
                     base: new RoundObject(parameterDiam/2, parameterDiam/2, parameterDiam),
                     dial: calculator(parameterDiam, 12),
                     //для DOM надо длину делать в 2 раза больше. Для Canvas и SVG - обычную.
-                    arrowSeconds: new Arrow(parameterDiam*0.375, parameterDiam * 0.125, parameterDiam/2, 0),
-                    arrowMinutes: new Arrow(parameterDiam*0.325, parameterDiam * 0.175, parameterDiam/2, 0),
-                    arrowHours: new Arrow(parameterDiam*0.275, parameterDiam * 0.225, parameterDiam/2, 0),
+                    arrowSeconds: new Arrow(parameterDiam*0.375, parameterDiam * 0.5, parameterDiam * 0.5, 0),
+                    arrowMinutes: new Arrow(parameterDiam*0.325, parameterDiam * 0.5, parameterDiam * 0.5, 0),
+                    arrowHours: new Arrow(parameterDiam*0.275, parameterDiam * 0.5, parameterDiam * 0.5, 0),
                     updateTime: (seconds, minutes = 0, hours = 0) => {
                         Clocks.arrowSeconds.stateUpdate(seconds / 60);
                         Clocks.arrowMinutes.stateUpdate(minutes / 60 + seconds / 3600);
@@ -125,78 +125,70 @@
                     }
                 }
                 
-                svgUpdate();
+                let canvas = objectBuilder("canvas", {"id": "canvas", "width": `${parameterDiam}`, "height": `${parameterDiam}`});
+                document.querySelector("#globalContainer").appendChild(canvas);
+
+                canvasDraw();
             }
 
-            const svgClear = () => {
-                const svg = document.querySelector("#SSS"); 
-                svg.innerHTML = ``;
-            };
+            const restoreDraw = () => {
+                let context = document.querySelector("#canvas").getContext("2d");
+                context.fillStyle = "white";
+                context.strokeStyle = "white";
+            }
 
-            const svgUpdate = () => {
-                //здесь участок кода рисующий часы
-                const svg = document.querySelector("#SSS"); 
-                const base = svgBuilder("ellipse", 
-                    {
-                        "cx": Clocks.base.centerX, 
-                        "cy": Clocks.base.centerY, 
-                        "rx": Clocks.base.diameter/2, 
-                        "ry": Clocks.base.diameter/2, 
-                        "fill": "burlywood", 
-                        "stroke": "black"
-                    });    
-                svg.appendChild(base);  
+            const roundDraw = (x, y, r, color) => {
+                let context = document.querySelector("#canvas").getContext("2d");
+                context.fillStyle = color;
+                context.moveTo(x + r, y);
+                context.beginPath();
+                context.arc(x, y, r, 0, Math.PI*2, false);
+                context.closePath();
+                context.fill();
+            }
+
+            const textDraw = (x, y, text) => {
+                let context = document.querySelector("#canvas").getContext("2d");
+                context.fillStyle = "black";
+                context.font = `${Clocks.base.diameter/200 * 12}px serif`;
+                context.textAlign = "center";
+                context.fillText(text, x, y);
+            }
+
+            const arrowDraw = (obj, color, width) => {
+                let context = document.querySelector("#canvas").getContext("2d");
+                context.translate(obj.hookX, obj.hookY);
+                context.rotate(obj.arrowAngle * Math.PI / 180);
+                context.lineWidth = width;
+                context.strokeStyle = color;
+                context.beginPath();                
+                context.moveTo(0, 0);
+                context.lineTo(obj.length, 0);
+                context.closePath();
+                context.rotate(-obj.arrowAngle * Math.PI / 180);
+                context.translate(-obj.hookX, -obj.hookY);
+                context.stroke();
+            }
+
+            const canvasClear = () => {
+                let context = document.querySelector("#canvas").getContext("2d");
+                context.clearRect(0, 0, Clocks.base.diameter, Clocks.base.diameter);
+            }
+
+            const canvasDraw = () => {
+                restoreDraw();
+                roundDraw(Clocks.base.centerX, Clocks.base.centerY, Clocks.base.diameter/2, "burlywood");
+
                 let count = 12;
                 for (let obj of Clocks.dial) {
-                    if (count === 13) {
-                        count = 1;
-                    }
-                    let dial = svgBuilder("ellipse", {"cx": String(obj.centerX), "cy": String(obj.centerY), "rx": String(obj.diameter/2), "ry": String(obj.diameter/2), "fill": "grey"});
-                    let fontSize = 12*(Clocks.base.diameter/200);
-                    let text = svgBuilder("text", {"x": String(obj.centerX - fontSize/2), "y": String(obj.centerY + fontSize/4)}, String(count), {"font-size": `${fontSize}px`});
-                    svg.appendChild(dial);
-                    svg.appendChild(text);
+                    if (count === 13) count = 1;
+                    roundDraw(obj.centerX, obj.centerY, obj.diameter/2, "grey");
+                    textDraw(obj.centerX, obj.centerY, String(count));
                     count += 1;
-                }    
-                let arrowSS = svgBuilder(
-                    "line", 
-                    {
-                        "x1": String(Clocks.base.centerX), 
-                        "y1": String(Clocks.base.centerY), 
-                        "x2": String(Clocks.base.centerX + Clocks.arrowSeconds.length), 
-                        "y2": String(Clocks.base.centerY),
-                        "stroke": "red",
-                        "stroke-width": "2",
-                        "transform": `rotate(${Clocks.arrowSeconds.arrowAngle} ${Clocks.base.centerX} ${Clocks.base.centerY})`
-                    });
-                   
-                let arrowMM = svgBuilder(
-                    "line", 
-                    {
-                        "x1": String(Clocks.base.centerX), 
-                        "y1": String(Clocks.base.centerY), 
-                        "x2": String(Clocks.base.centerX + Clocks.arrowMinutes.length), 
-                        "y2": String(Clocks.base.centerY),
-                        "stroke": "black",
-                        "stroke-width": "4",
-                        "transform": `rotate(${Clocks.arrowMinutes.arrowAngle} ${Clocks.base.centerX} ${Clocks.base.centerY})`
-                    });
-
-                let arrowHH = svgBuilder(
-                    "line", 
-                    {
-                        "x1": String(Clocks.base.centerX), 
-                        "y1": String(Clocks.base.centerY), 
-                        "x2": String(Clocks.base.centerX + Clocks.arrowHours.length), 
-                        "y2": String(Clocks.base.centerY),
-                        "stroke": "grey",
-                        "stroke-width": "8",
-                        "transform": `rotate(${Clocks.arrowHours.arrowAngle} ${Clocks.base.centerX} ${Clocks.base.centerY})`
-                    });
-
-                svg.appendChild(arrowSS);
-                svg.appendChild(arrowMM);
-                svg.appendChild(arrowHH);
+                }     
+                arrowDraw(Clocks.arrowSeconds, "red", 2);
+                arrowDraw(Clocks.arrowMinutes, "black", 4);
+                arrowDraw(Clocks.arrowHours, "grey", 8);           
             }
 
             document.querySelector("#deployButton").addEventListener("click", () => {
@@ -215,8 +207,8 @@
                             `);
                         Clocks.updateTime(date.getSeconds(), date.getMinutes(), date.getHours());
                         //здесь участок кода обновляющий svg стрелок
-                        svgClear();
-                        svgUpdate();
+                        canvasClear();
+                        canvasDraw();
                         //                         
                     }, 1000);
                 }
