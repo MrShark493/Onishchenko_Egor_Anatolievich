@@ -125,18 +125,25 @@
                 return tag;
             }
 
+            const getSource = (source) => {
+                let string = "hw" + source.slice(0, 4).replace(".", "");
+                return string;
+            };
+
             for (let elem in hwList) {
                 let li = addTagElement('li', ul);
+                console.log(getSource(elem));
+                let a = addTagElement('a', li, {'href': getSource(elem)});
 
                 switch (hwList[elem]){
                     case "done":
-                        li.innerHTML = `<s>${elem}</s>`;
+                        a.innerHTML = `<s>${elem}</s>`;
                         break;
                     case "ready": 
-                        li.innerHTML = `<b>${elem}</b>`;
+                        a.innerHTML = `<b>${elem}</b>`;
                         break;
                     case "none": 
-                        li.innerHTML = `${elem}`;
+                        a.innerHTML = `${elem}`;
                         break;
                 }
             }

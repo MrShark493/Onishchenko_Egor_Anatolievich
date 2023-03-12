@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <style>
+            *{
+                margin: 0;
+                padding: 0;
+                font-size: 18px;
+            }
+
+            header > div {
+                border-bottom: 1px solid black;
+                font-size: 24px;
+                padding: 5px;
+            }
+
+            main {
+                max-width: 1080px;
+                margin: auto;
+                border: 1px solid black;
+            }
+
+            main > div{
+                display: flex;
+                flex-direction: column;
+            }
+
+            #ui_container{
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 10%;
+            }
+
+            #field {
+                position: relative;
+                width: 800px;
+                height: 500px;
+                border: 0px solid black;
+                background-color:burlywood;
+                margin: auto;
+            }
+
+            #left_player {
+                position: absolute;
+                background-color: green;
+            }
+
+            #right_player {
+                position: absolute;
+                background-color: blue;
+            }
+
+            #ball {
+                position: absolute;
+                background-color: red;
+                border: 1px solid black;
+                border-radius: 50%;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div>
+                <p>Задание N.43</p>
+            </div>
+        </header>
+        <main>
+            <div>
+                <div id="ui_container">
+                    <button>Start</button>
+                    <h1 id="count">N/A</h1>
+                </div>
+                <div id="field">
+                    <div id="left_player"></div>
+                    <div id="right_player"></div>
+                    <div id="ball"></div>
+                </div>
+            </div>
+        </main>
+        <script>
+            //просто скопировал конструктор тегов. Делал для одного из своих проектов
+            const addTagElement = (stringTagName, objectParentElement = body, objectAttributes = {}, objectStyles = {}, objectEvents = {}) => {
+                //создает элемент 
+                let tag = document.createElement(stringTagName);
+                //просматриваем переданный объект с аттрибутами
+                for (let attribute in objectAttributes) {
+                    tag[attribute] = objectAttributes[attribute];
+                }
+
+                //добавляем перечисляемые стили
+                let stringStyles = '';
+                for (let style in objectStyles) {
+                    stringStyles += style + ": " + objectStyles[style] + '; ';
+                    tag.setAttribute('style', stringStyles);
+                }
+
+                //добавляем обработчики событий
+                for (let event in objectEvents) {
+                    tag.addEventListener(event, objectEvents[event]);
+                }
+
+                //если есть необходимость - добавляем родиетльский элемент
+                if (objectParentElement != null) {
+                    objectParentElement.appendChild(tag);
+                }    
+
+                //если понадобится этот тег в виде объекта в дальнейшем - функцция возвращет его.
+                return tag;
+            }
+
+            //MODEL
+
+            let basicGameSpeed = 2.5;
+            let basicPlayerHeight = 100;
+
+            //Счет игры
+            const counterModel = {
+                left_count: 0,
+                right_count: 0
+            };
+
+            //объект отвечающий за игровое поле. Содержит в себе размеры поля
+            const playfieldModel = {
+                resolution: {
+                    X: 800,
+                    Y: 500
+                } 
+            };
+
+            //Родительный класс для объектов Player и Ball. Содержит базовые параметры объектов.
+            //Далее, наследствует объект Player и Ball. Отличаются между собой подходом к реализации движения.
+            //Player - двигается вверх и вниз.
+            //Ball - как угодно.
+            class PlayObject {
+                constructor(X = 0, Y = 0, width = 0, height = 0, speedX = 0, speedY = 0) {
+                    this.X = X;
+                    this.Y = Y;
+                    this.width = width;
+                    this.height = height;
+                    this.speed = {
+                        X: speedX, 
+                        Y: speedY
+                    };
+                    this.acceleration = 0;
+                };
+
+                resetPosition(X, Y) {
+                    this.X = X;
+                    this.Y = Y;
+                };
+            };
+
+            class Player extends PlayObject {
+                move(paramValue) {
+                    switch (paramValue) {
+                        case 'Up':
+                            if (this.Y > 0) {
+                                this.Y -= this.speed.Y;
+                            }
+                            break;
+                        case 'Down':
+                            if (this.Y < playfieldModel.resolution.Y - this.height) {
+                                this.Y += this.speed.Y;
+                            }
+                            break;
+                    };
+                };
+            };
+
+            class Ball extends PlayObject {
+                move() {
+                    this.X += this.speed.X;
+                    this.Y += this.speed.Y;
+                };
+            };
+
+            //создаем объекты
+            const leftPlayerModel = new Player(0, 0, 5, basicPlayerHeight, 0, basicGameSpeed*2);
+            const rightPlayerModel = new Player(
+                playfieldModel.resolution.X - 5, 
+                playfieldModel.resolution.Y - basicPlayerHeight,
+                5,
+                basicPlayerHeight,
+                0,
+                basicGameSpeed*2
+            );
+            const playballModel = new Ball(
+                (playfieldModel.resolution.X / 2) - 25/2, 
+                (playfieldModel.resolution.Y / 2) - 25/2, 
+                25, 25
+            );
+
+            //VIEW <-- Здесь манипуляции с DOM
+
+            const counterView = document.querySelector("h1");
+            const playfieldView = document.querySelector("#field");
+            const leftPlayerView = document.querySelector("#left_player");
+            const rightPlayerView = document.querySelector("#right_player");
+            const playballView = document.querySelector("#ball");
+            const buttonStart = document.querySelector("#ui_container > button");
+
+            //CONTROLLER <-- Обработка событий и посредник между Model и View
+            
+            const updateObjectPos = (view, model) => {
+                //просто обновляем позицию объектов на экране
+                view.style.left = `${model.X}px`;
+                view.style.top = `${model.Y}px`;
+            };
+
+            const setObjectSize = (view, model) => {
+                //используется одноразово чтобы задать объектам размер
+                view.style.width = `${model.width}px`;
+                view.style.height = `${model.height}px`;
+            };
+
+            const changeObjectPos = (view, model, paramValue) => {
+                //метод контроллера. 
+                //Используется для смены позиции объекта и обновления его положения на экране.
+                model.move(paramValue);
+                updateObjectPos(view, model);
+            };
+
+            const setCounterValues = () => {
+                //выставляем счёт
+                counterView.innerHTML = `${counterModel.left_count} : ${counterModel.right_count}`;
+            };
+
+            const deployBall = () => {
+                //выпускаем мяч
+                const angle = randomAngle();
+                playballModel.speed.X = basicGameSpeed * Math.cos(angle);
+                playballModel.speed.Y = basicGameSpeed * Math.sin(angle);
+            };
+
+            const randomAngle = () => {
+                //Задаем случайный угол. Чтоб мяч не летел тупо прямо, задаем угол в пределах от 30 до 45 градусов.
+                //Случайно отзеркаливаем его, чтобы он мог лететь вниз на старте (50% шанс)
+                //Случайно прибавляем ему 180 градусов чтобы он мог лететь в левую половину поля.
+                let angle = Math.random() * Math.PI/12 + Math.PI/6;
+                if (Math.random() > 0.5) angle *= -1;
+                if (Math.random() > 0.5) angle += Math.PI;
+                return angle;
+            };
+
+            let gameTimer;
+
+            const eventGameStart = () => {
+                //Метод, вызываемый при старте игры.
+                setObjectSize(leftPlayerView, leftPlayerModel);
+                setObjectSize(rightPlayerView, rightPlayerModel);
+                setObjectSize(playballView, playballModel);
+                updateObjectPos(leftPlayerView, leftPlayerModel);
+                updateObjectPos(rightPlayerView, rightPlayerModel);
+                updateObjectPos(playballView, playballModel);
+                setCounterValues();
+                deployBall();
+                gameTimer = setInterval(gameStep, 10);
+            };
+            const eventGameReset = () => {
+                playballModel.resetPosition(playfieldModel.resolution.X / 2 - playballModel.width/2, playfieldModel.resolution.Y / 2 - playballModel.height/2);
+                leftPlayerModel.resetPosition(0, 0);
+                rightPlayerModel.resetPosition(playfieldModel.resolution.X - rightPlayerModel.width, playfieldModel.resolution.Y - rightPlayerModel.height);
+                playballModel.speed = {X: 0, Y: 0};
+                clearInterval(gameTimer);
+            };
+
+            addEventListener('keydown', (event) => {
+                //Фиксируем нажатие клавиши. В зависимости от клавиши, будет двигаться тот или иной объект.
+                event.preventDefault();
+                switch(event.key) {
+                    case 'ArrowUp':
+                        changeObjectPos(rightPlayerView, rightPlayerModel, "Up");
+                        break;
+                    case 'ArrowDown':
+                        changeObjectPos(rightPlayerView, rightPlayerModel, "Down");
+                        break;
+                    case 'w':
+                        changeObjectPos(leftPlayerView, leftPlayerModel, "Up");
+                        break;
+                    case 's':
+                        changeObjectPos(leftPlayerView, leftPlayerModel, "Down");
+                        break;
+                };
+            });
+
+            //событие нажатие кнопки "Старт"
+            buttonStart.addEventListener('click', (event) => {
+                if (buttonStart.innerHTML === "Start") {
+                    eventGameStart();
+                    buttonStart.innerHTML = "Reset";
+                }
+                else {
+                    eventGameReset();
+                    buttonStart.innerHTML = "Start";
+                };
+            });
+
+            const gameStep = () => {
+                /*пошагово обновляем игру.
+                1) Проверка на столкновение мяча со стенами и платформами.
+                2) Перемещение мяча.
+                */
+                collisionCheck();
+                playballModel.move();
+                updateObjectPos(playballView, playballModel);
+            };
+
+            const collisionCheck = () => {
+                if (triggerObjectCollision(playballModel, rightPlayerModel) || triggerObjectCollision(playballModel, leftPlayerModel) ) {
+                    playballModel.speed.X *= -1;
+                };
+                if (triggerWallCollision(playballModel)) {
+                    playballModel.speed.Y *= -1;
+                };
+            };
+
+            const triggerObjectCollision = (model1, model2) =>
+                ( (
+                    ((model1.X >= model2.X) && (model1.X <= model2.X + model2.width))
+                    ||
+                    ((model1.X + model1.width >= model2.X) && (model1.X + model1.width <= model2.X + model2.width))
+                    ) 
+                    && 
+                    (
+                        ((model1.Y >= model2.Y) && (model1.Y <= model2.Y + model2.height))
+                        ||
+                        ((model1.Y + model1.height >= model2.Y) && (model1.Y + model1.height <= model2.Y + model2.height))
+                        ))?
+                (true):
+                (false);
+
+            const triggerWallCollision = (model) => 
+                (
+                    (model.Y <= 0) || (model.Y + model.height >= playfieldModel.resolution.Y)
+                )?
+                (true):
+                (false);
+
+        </script>
+    </body>
+</html>
