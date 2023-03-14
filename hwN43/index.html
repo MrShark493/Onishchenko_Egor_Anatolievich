@@ -306,6 +306,7 @@
                 updateObjectPos(playballView, playballModel);
             };
 
+            let outOfBoundsCheck;
             const collisionCheck = () => {
                 if (triggerObjectCollision(playballModel, rightPlayerModel) || triggerObjectCollision(playballModel, leftPlayerModel) ) {
                     playballModel.speed.X *= -1;
@@ -313,6 +314,20 @@
                 if (triggerWallCollision(playballModel)) {
                     playballModel.speed.Y *= -1;
                 };
+                outOfBoundsCheck = triggerOutOfBounds(playballModel)
+                if (outOfBoundsCheck[0]) {
+                    eventGameReset();
+                    switch (outOfBoundsCheck[1]) {
+                        case 'left':
+                            counterModel.left_count += 1;
+                            break;
+                        case 'right':
+                            counterModel.right_count += 1;
+                            break;
+                    };
+                    setCounterValues();
+                    buttonStart.innerHTML = "Start";
+                }
             };
 
             const triggerObjectCollision = (model1, model2) =>
@@ -336,6 +351,17 @@
                 )?
                 (true):
                 (false);
+
+            const triggerOutOfBounds = (model) => {
+                /*Следим за мячом. Если мяч выходит за левую границу - отправляем left.
+                Если за правую границу - отправляем right
+                Далее проверка. Если answer содержит значение - отправляем массив из true и самой переменной.
+                Если не содержит (мяч не прошёл проверку) - отправляет массив только с false.*/
+                let answer;
+                if (model.X < 0) answer = 'left';
+                if (model.X + model.width > playfieldModel.resolution.X) answer = 'right';
+                return (answer)?([true, answer]):([false]);
+            };            
 
         </script>
     </body>

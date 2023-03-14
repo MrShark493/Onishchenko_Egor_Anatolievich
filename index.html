@@ -31,8 +31,17 @@
                 font-size: 24px;
             }
 
+            p > * {
+                font-size: 24px;
+            }
+
             ul {
                 list-style: none;
+            }
+
+            a {
+                color: black;
+                text-decoration: none;
             }
 
         </style>
@@ -47,9 +56,12 @@
                 <p>ToDo-List сделанной домашки</p>
             </div>
             <div class="textContainer">
-                <p> Зачеркнуто: сделанно </p>
-                <p> Жирный шрифт: ожидает проверки </p>
+                <p> <s>Зачеркнуто</s>: сделанно </p>
+                <p> <b>Жирный шрифт</b>: ожидает проверки </p>
                 <p> Ничего: не сделано ещё </p>
+            </div>
+            <div class="textContainer">
+                <p>Домашки в списке кликабельны</p>
             </div>
             <div class="listContainer">
                 <ul id="listHandler">
