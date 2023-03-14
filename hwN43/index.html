@@ -62,13 +62,14 @@
     <body>
         <header>
             <div>
-                <p>Задание N.43</p>
+                <p>Задание N.43 | TENNIS_DOM</p>
             </div>
         </header>
         <main>
             <div>
                 <div id="ui_container">
                     <button>Start</button>
+                    <p>W/S - управление левым игроком, Стрелка Вверх/Вниз - правым игроком.</p>
                     <h1 id="count">N/A</h1>
                 </div>
                 <div id="field">
@@ -176,14 +177,14 @@
             };
 
             //создаем объекты
-            const leftPlayerModel = new Player(0, 0, 5, basicPlayerHeight, 0, basicGameSpeed*2);
+            const leftPlayerModel = new Player(0, 0, 5, basicPlayerHeight, 0, basicGameSpeed*3);
             const rightPlayerModel = new Player(
                 playfieldModel.resolution.X - 5, 
                 playfieldModel.resolution.Y - basicPlayerHeight,
                 5,
                 basicPlayerHeight,
                 0,
-                basicGameSpeed*2
+                basicGameSpeed*3
             );
             const playballModel = new Ball(
                 (playfieldModel.resolution.X / 2) - 25/2, 
@@ -263,25 +264,36 @@
                 rightPlayerModel.resetPosition(playfieldModel.resolution.X - rightPlayerModel.width, playfieldModel.resolution.Y - rightPlayerModel.height);
                 playballModel.speed = {X: 0, Y: 0};
                 clearInterval(gameTimer);
+                gameTimer = 0;
             };
 
             addEventListener('keydown', (event) => {
                 //Фиксируем нажатие клавиши. В зависимости от клавиши, будет двигаться тот или иной объект.
                 event.preventDefault();
-                switch(event.key) {
-                    case 'ArrowUp':
-                        changeObjectPos(rightPlayerView, rightPlayerModel, "Up");
-                        break;
-                    case 'ArrowDown':
-                        changeObjectPos(rightPlayerView, rightPlayerModel, "Down");
-                        break;
-                    case 'w':
-                        changeObjectPos(leftPlayerView, leftPlayerModel, "Up");
-                        break;
-                    case 's':
-                        changeObjectPos(leftPlayerView, leftPlayerModel, "Down");
-                        break;
-                };
+                console.log(event.key);
+                //проверка условия. Если таймер не активен, то игроки не могут двигаться
+                if (gameTimer != 0) {
+                    switch(event.key) {
+                        case 'ArrowUp':
+                            changeObjectPos(rightPlayerView, rightPlayerModel, "Up");
+                            break;
+                        case 'ArrowDown':
+                            changeObjectPos(rightPlayerView, rightPlayerModel, "Down");
+                            break;
+                        case ('w'):
+                            changeObjectPos(leftPlayerView, leftPlayerModel, "Up");
+                            break;
+                        case ('s'):
+                            changeObjectPos(leftPlayerView, leftPlayerModel, "Down");
+                            break;
+                        case ('ц'):
+                            changeObjectPos(leftPlayerView, leftPlayerModel, "Up");
+                            break;
+                        case ('ы'):
+                            changeObjectPos(leftPlayerView, leftPlayerModel, "Down");
+                            break;
+                    };
+                };                
             });
 
             //событие нажатие кнопки "Старт"
