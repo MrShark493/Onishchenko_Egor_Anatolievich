@@ -88,7 +88,7 @@
                 "N.37 CLOCK_SVG": "ready",
                 "N.40 CLOCK_CANVAS": "ready",
                 "N.43 TENNIS_DOM": "ready",
-                "N.47 TENNIS_SVG": "none",
+                "N.47 TENNIS_SVG": "ready",
                 "N.50 TENNIS_CANVAS": "none",
                 "N.53 DRINKS_LOC_STORAGE": "none",
                 "N.57 CLOCK_MVC": "none",
@@ -145,7 +145,7 @@
             for (let elem in hwList) {
                 let li = addTagElement('li', ul);
                 console.log(getSource(elem));
-                let a = addTagElement('a', li, {'href': getSource(elem)});
+                let a = addTagElement('a', li, {'href': getSource(elem) + "/main.html"});
 
                 switch (hwList[elem]){
                     case "done":

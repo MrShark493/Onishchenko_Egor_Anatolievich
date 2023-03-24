@@ -37,7 +37,6 @@
                 width: 800px;
                 height: 500px;
                 border: 0px solid black;
-                background-color:burlywood;
                 margin: auto;
             }
 
@@ -62,7 +61,7 @@
     <body>
         <header>
             <div>
-                <p>Задание N.43 | TENNIS_SVG</p>
+                <a href="#">Задание N.43 | TENNIS_SVG</a>
             </div>
         </header>
         <main>
@@ -73,9 +72,6 @@
                     <h1 id="count">N/A</h1>
                 </div>
                 <div id="field">
-                    <div id="left_player"></div>
-                    <div id="right_player"></div>
-                    <div id="ball"></div>
                 </div>
             </div>
         </main>
@@ -86,9 +82,15 @@
 ===========================================================================================================
 */
             const addTagElement = (stringTagName, objectParentElement = body, objectAttributes = {}, objectStyles = {}, objectEvents = {}) => {
-                let tag = document.createElement(stringTagName);
+                let tag;
+                if (stringTagName === "svg" || stringTagName === "rect" || stringTagName === "ellipse" ){
+                    tag = document.createElementNS("http://www.w3.org/2000/svg", stringTagName);
+                }
+                else {
+                    tag = document.createElement(stringTagName);
+                };
                 for (let attribute in objectAttributes) {
-                    tag[attribute] = objectAttributes[attribute];
+                    tag.setAttribute(attribute, objectAttributes[attribute]);
                 };
                 let stringStyles = '';
                 for (let style in objectStyles) {
@@ -117,18 +119,21 @@
 
                 constructor() {
                     this.debugMode = false;
-                    this.triggerTimer = 1000;
                 };
+
+                _timerInterval = 10;
 
                 _triggerArray = []; //приватный массив триггеров
 
-                triggerCheck = setInterval(() => {
+                triggerCheck = () => {
                     for (let i = 0; i < this._triggerArray.length; i += 1) {
                         if (this._triggerArray[i].condition() && this._triggerArray[i].active === true) {
                             this._triggerArray[i].consequence();
                         }; 
                     };
-                },this.triggerTimer); //сам таймер
+                };
+
+                _timer = setInterval(this.triggerCheck, this._timerInterval);
 
                 addTrigger(trigger, ...other){
                     this._triggerArray.push(trigger);
@@ -146,6 +151,15 @@
                 /*triggerActivation(trigger_name, param = true){
                     this._triggerArray.find(name => name === trigger_name).active = param;
                 };*/
+
+                set _timerInterval(value) {
+                    clearInterval(this._timer);
+                    this._timer = setInterval(this.triggerCheck, this._timerInterval);
+                }
+
+                get _timer() {
+                    console.log(_timer);
+                }
             };
 
 /*
@@ -219,18 +233,18 @@
             };
 
             //создаем объекты
-            const leftPlayerModel = new Player(0, 0, 5, basicPlayerHeight, 0, basicGameSpeed*3);
+            const leftPlayerModel = new Player(0, (playfieldModel.resolution.Y - basicPlayerHeight)/2, 5, basicPlayerHeight, 0, basicGameSpeed*3);
             const rightPlayerModel = new Player(
                 playfieldModel.resolution.X - 5, 
-                playfieldModel.resolution.Y - basicPlayerHeight,
+                (playfieldModel.resolution.Y - basicPlayerHeight)/2,
                 5,
                 basicPlayerHeight,
                 0,
                 basicGameSpeed*3
             );
             const playballModel = new Ball(
-                (playfieldModel.resolution.X / 2) - 25/2, 
-                (playfieldModel.resolution.Y / 2) - 25/2, 
+                (playfieldModel.resolution.X / 2), 
+                (playfieldModel.resolution.Y / 2), 
                 25, 25
             );
 
@@ -240,23 +254,83 @@
 ===========================================================================================================
 */
 
+            
+
             const counterView = document.querySelector("h1");
-            const playfieldView = document.querySelector("#field");
-            const leftPlayerView = document.querySelector("#left_player");
-            const rightPlayerView = document.querySelector("#right_player");
-            const playballView = document.querySelector("#ball");
+            const playfieldContainer = document.querySelector("#field");
             const buttonStart = document.querySelector("#ui_container > button");
+
+            const SVGContainer = addTagElement(
+                "svg", 
+                playfieldContainer, 
+                {
+                    width: playfieldModel.resolution.X + "", 
+                    height: playfieldModel.resolution.Y + "", 
+                }
+                );
+            
+            const playfieldView = addTagElement(
+                "rect", 
+                SVGContainer, 
+                {
+                    X: 0,
+                    Y: 0,
+                    width: playfieldModel.resolution.X, 
+                    height: playfieldModel.resolution.Y + "",
+                    fill: "#DEB887" 
+                }
+                );
+
+            const leftPlayerView = addTagElement(
+                "rect", 
+                SVGContainer, 
+                {
+                    'x': leftPlayerModel.X,
+                    'y': leftPlayerModel.Y,
+                    'width': leftPlayerModel.width,
+                    'height': leftPlayerModel.height,
+                    "fill": "green"
+                }
+                );
+
+            const rightPlayerView = addTagElement(
+                "rect", 
+                SVGContainer, 
+                {
+                    'x': rightPlayerModel.X,
+                    'y': rightPlayerModel.Y,
+                    'width': rightPlayerModel.width,
+                    'height': rightPlayerModel.height,
+                    "fill": "blue"
+                }
+                );
+
+            const playballView = addTagElement(
+                "ellipse",
+                SVGContainer,
+                {
+                    'cx': playballModel.X + playballModel.width/2,
+                    'cy': playballModel.Y + playballModel.height/2,
+                    'rx': playballModel.width/2,
+                    'ry': playballModel.height/2,
+                    "fill": "red",
+                    "stroke": 'black'
+                }
+            );
 
             const updateObjectPos = (view, model) => {
                 //просто обновляем позицию объектов на экране
-                view.style.left = `${model.X}px`;
-                view.style.top = `${model.Y}px`;
+                view.setAttribute("x", model.X);
+                view.setAttribute("y", model.Y);
+                view.setAttribute("cx", model.X + model.width/2);
+                view.setAttribute("cy", model.Y + model.height/2);
             };
 
             const setObjectSize = (view, model) => {
                 //используется одноразово чтобы задать объектам размер
-                view.style.width = `${model.width}px`;
-                view.style.height = `${model.height}px`;
+                //в SVG версии не используется, поскольку размеры задаются сразу
+                view.setAttribute("width", model.width);
+                view.setAttribute("height", model.height);
             };
 
             const setCounterValues = () => {
@@ -289,33 +363,37 @@
                 playballModel.speed.Y = basicGameSpeed * Math.sin(angle);
             };
 
+            let gamePause = true;
+
             const eventGameStart = () => {
                 //Метод, вызываемый при старте игры.
-                setObjectSize(leftPlayerView, leftPlayerModel);
-                setObjectSize(rightPlayerView, rightPlayerModel);
-                setObjectSize(playballView, playballModel);
                 updateObjectPos(leftPlayerView, leftPlayerModel);
                 updateObjectPos(rightPlayerView, rightPlayerModel);
                 updateObjectPos(playballView, playballModel);
                 setCounterValues();
                 deployBall();
+                gamePause = false;
             };
             const eventGameReset = () => {
                 playballModel.resetPosition(playfieldModel.resolution.X / 2 - playballModel.width/2, playfieldModel.resolution.Y / 2 - playballModel.height/2);
-                leftPlayerModel.resetPosition(0, 0);
-                rightPlayerModel.resetPosition(playfieldModel.resolution.X - rightPlayerModel.width, playfieldModel.resolution.Y - rightPlayerModel.height);
+                leftPlayerModel.resetPosition(
+                    0, (playfieldModel.resolution.Y - basicPlayerHeight)/2
+                    );
+                rightPlayerModel.resetPosition(
+                    playfieldModel.resolution.X - rightPlayerModel.width, (playfieldModel.resolution.Y - basicPlayerHeight)/2
+                    );
                 playballModel.speed = {X: 0, Y: 0};
                 updateObjectPos(leftPlayerView, leftPlayerModel);
                 updateObjectPos(rightPlayerView, rightPlayerModel);
                 updateObjectPos(playballView, playballModel);
+                gamePause = true;
             };
 
             addEventListener('keydown', (event) => {
                 //Фиксируем нажатие клавиши. В зависимости от клавиши, будет двигаться тот или иной объект.
                 event.preventDefault();
-                console.log(event.key);
                 //проверка условия. Если таймер не активен, то игроки не могут двигаться
-                if (gameTimer != 0) {
+                if (gamePause != true) {
                     switch(event.key) {
                         case 'ArrowUp':
                             changeObjectPos(rightPlayerView, rightPlayerModel, "Up");
@@ -413,7 +491,8 @@
                 TObjectCollision,
                 TNewFrame
                 );
-            triggerObserver.triggerTimer = 50;
+
+            console.log(`GameSpeed: ${triggerObserver._timerInterval}`);
 
         </script>
     </body>
