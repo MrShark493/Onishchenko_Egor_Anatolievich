@@ -61,7 +61,7 @@
     <body>
         <header>
             <div>
-                <a href="#">Задание N.43 | TENNIS_SVG</a>
+                <a href="#">Задание N.50 | TENNIS_CANVAS</a>
             </div>
         </header>
         <main>
@@ -254,81 +254,72 @@
 ===========================================================================================================
 */
 
-            
+            class CanvasObject{
+                constructor(figure, color, model){
+                    this.color = color;
+                    this.figure = figure;
+                    this.model = model;
+                };
+            };
 
             const counterView = document.querySelector("h1");
             const playfieldContainer = document.querySelector("#field");
             const buttonStart = document.querySelector("#ui_container > button");
 
-            const SVGContainer = addTagElement(
-                "svg", 
+            const canvas = addTagElement(
+                "canvas", 
                 playfieldContainer, 
                 {
-                    width: playfieldModel.resolution.X + "", 
-                    height: playfieldModel.resolution.Y + "", 
-                }
-                );
+                    "width": playfieldModel.resolution.X,
+                    "height": playfieldModel.resolution.Y
+                });
             
-            const playfieldView = addTagElement(
-                "rect", 
-                SVGContainer, 
-                {
-                    X: 0,
-                    Y: 0,
-                    width: playfieldModel.resolution.X, 
-                    height: playfieldModel.resolution.Y + "",
-                    fill: "#DEB887" 
-                }
-                );
+            const ctx = canvas.getContext('2d');
+            
+            const playfieldView = new CanvasObject("rect", "burlywood");
+            const leftPlayerView = new CanvasObject("rect", "green");
+            const rightPlayerView = new CanvasObject("rect", "blue");
+            const playballView = new CanvasObject("ellipse", "red");
 
-            const leftPlayerView = addTagElement(
-                "rect", 
-                SVGContainer, 
-                {
-                    'x': leftPlayerModel.X,
-                    'y': leftPlayerModel.Y,
-                    'width': leftPlayerModel.width,
-                    'height': leftPlayerModel.height,
-                    "fill": "green"
-                }
-                );
+            const frameDraw = () => {
+                ctx.clearRect(0, 0, playfieldModel.resolution.X, playfieldModel.resolution.Y);
+                /*
+                    Список объектов для переотрисовки:
+                    1) Задний план
+                    2) Левый игрок
+                    3) Правый игрок
+                    4) Мяч
+                */
 
-            const rightPlayerView = addTagElement(
-                "rect", 
-                SVGContainer, 
-                {
-                    'x': rightPlayerModel.X,
-                    'y': rightPlayerModel.Y,
-                    'width': rightPlayerModel.width,
-                    'height': rightPlayerModel.height,
-                    "fill": "blue"
-                }
-                );
+                ctx.fillStyle = playfieldView.color;
+                ctx.fillRect(0, 0, playfieldModel.resolution.X, playfieldModel.resolution.Y);
 
-            const playballView = addTagElement(
-                "ellipse",
-                SVGContainer,
-                {
-                    'cx': playballModel.X + playballModel.width/2,
-                    'cy': playballModel.Y + playballModel.height/2,
-                    'rx': playballModel.width/2,
-                    'ry': playballModel.height/2,
-                    "fill": "red",
-                    "stroke": 'black'
-                }
-            );
+                ctx.fillStyle = leftPlayerView.color;
+                ctx.fillRect(leftPlayerModel.X, leftPlayerModel.Y, leftPlayerModel.width, leftPlayerModel.height);
+
+                ctx.fillStyle = rightPlayerView.color;
+                ctx.fillRect(rightPlayerModel.X, rightPlayerModel.Y, rightPlayerModel.width, rightPlayerModel.height);
+
+                ctx.beginPath();
+                ctx.fillStyle = playballView.color;
+                ctx.arc(
+                    playballModel.X + playballModel.width/2, 
+                    playballModel.Y + playballModel.width/2, 
+                    playballModel.width/2, 
+                    0, 
+                    2*Math.PI);
+                ctx.stroke();
+                ctx.fill();
+                ctx.closePath();
+            };
 
             const updateObjectPos = (view, model) => {
                 //просто обновляем позицию объектов на экране
-                view.setAttribute("x", model.X);
-                view.setAttribute("y", model.Y);
-                view.setAttribute("cx", model.X + model.width/2);
-                view.setAttribute("cy", model.Y + model.height/2);
             };
 
             const setObjectSize = (view, model) => {
                 //используется одноразово чтобы задать объектам размер
-                //в SVG версии не используется, поскольку размеры задаются сразу
+                //в SVG и CANVAS версии не используется, поскольку размеры задаются сразу
                 view.setAttribute("width", model.width);
                 view.setAttribute("height", model.height);
             };
@@ -449,7 +440,8 @@
                 () => true,
                 () => {
                     playballModel.move();
-                    updateObjectPos(playballView, playballModel);
+                    //updateObjectPos(playballView, playballModel); <-- Для canvas требуется полная переотрисовка кадра
+                    frameDraw();
                 },
                 true
             );
