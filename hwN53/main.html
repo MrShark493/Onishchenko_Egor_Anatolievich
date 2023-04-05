@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <style>
+            *{
+                margin: 0;
+                padding: 0;
+                font-size: 18px;
+            }
+
+            .textContainer {
+                border-bottom: 1px solid black;
+                font-size: 24px;
+                padding: 5px;
+            }
+
+            .card {
+                margin: 10px;
+                width: 200px;
+                min-height: 200px;
+            }
+
+            .card > fieldset {
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .name {
+                font-size: 24px;
+            }
+
+            .type {
+                font-size: 14px;
+                color: grey;
+            }
+
+            .Container {
+                display: flex;
+                flex-direction: row;
+                align-items: start;
+                margin-top: 10px;
+            }
+
+            #ingridiente > ul {
+                margin-left: 10px;
+            }
+
+            #ingridiente > ul > li {
+                font-size: 14px;
+            }
+
+            .Container > label{
+                margin-right: 10px;
+            }
+
+            #receipt > textarea {
+                margin-left: 10px;
+            }
+
+            #auto {
+                border-top: 1px solid black;
+            }
+
+            #formContainer {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .panel {
+                display: flex;
+                flex-direction: row;
+                align-items: start;
+            }
+
+            .panel > button{
+                width: 150px;
+                height: 150px;
+                margin: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="textContainer">
+                <p>Задание N.53 DRINKS_HASH_FUNC     </p>
+            </div>
+        </header>
+        <div class="textContainer">
+            <p>Управление хранилищем</p>
+        </div>
+        <div class="panel">
+            <button onClick="buttonAdd()">Добавить напиток</button>
+            <button onClick="buttonGetList()">Получить список напитков</button>
+            <button onClick="buttonGetInfo()">Получить информацию о напитке</button>
+            <button onClick="buttonDelete()">Удалить напиток</button>
+        </div>
+        <div class="textContainer" id="auto">
+            <p>Автоматическая верстка</p>
+        </div>
+        <div id="formContainer">
+        </div>
+        <script>
+            // Я сделал копипаст из N.13. Поэтому мог по ошибке где-нибудь оставить var, вместо let или const
+            class LocStorageClass {
+                constructor(){
+                }
+
+                _receiptsCount = 0;
+
+                addValue(key, value) {
+                    localStorage[key] = JSON.stringify(value);
+                    this._receiptsCount += 1;
+                }
+
+                getValue(key) {
+                    const obj = JSON.parse((key in localStorage)?(localStorage[key]):(false));
+                    console.log(obj);
+                    return obj;
+                }
+
+                deleteValue(key) {
+                    delete localStorage[key];
+                    this._receiptsCount -= 1;
+                }
+
+                getKeys() {
+                    const arr = [];
+                    let i = 0;
+                    for (let elem in localStorage){
+                        if (i < this._receiptsCount) {
+                            arr.push(elem);
+                            i += 1;
+                        }
+                        else {
+                            break;
+                        }                        
+                    }
+                    return arr;
+                };
+
+                get _receiptsCount() {
+                    console.log(this._receiptsCount);
+                };
+            };
+
+            const drinkStorage = new LocStorageClass();
+            //добавим пробничек
+            drinkStorage.addValue('Мохито', {
+                alko: true,
+                ingridientes: ["Лайм", "Лимон", "Джин", "Мята", "Лёд", "Тоник"],
+                receipt: ["Перемешать"]
+            });
+
+            drinkStorage.addValue("Какой-я-классный", {
+                alko: true,
+                ingridientes: ["Кола", "Виски"],
+                receipt: ["Перемешать"]
+            });
+
+            drinkStorage.addValue("Какой-то ужасный рецепт", {
+                alko: false,
+                ingridientes: ["Спрайт", "Фанта"],
+                receipt: ["Перемешать"]
+            })
+
+            /////////////////////////////////////////////////////////////
+            //просто скопировал конструктор тегов. Делал для одного из своих проектов
+            const addTagElement = (stringTagName, objectParentElement = body, objectAttributes = {}, objectStyles = {}, objectEvents = {}) => {
+                //создает элемент 
+                let tag = document.createElement(stringTagName);
+                //просматриваем переданный объект с аттрибутами
+                for (let attribute in objectAttributes) {
+                    tag[attribute] = objectAttributes[attribute];
+                }
+
+                //добавляем перечисляемые стили
+                let stringStyles = '';
+                for (let style in objectStyles) {
+                    stringStyles += style + ": " + objectStyles[style] + '; ';
+                    tag.setAttribute('style', stringStyles);
+                }
+
+                //добавляем обработчики событий
+                for (let event in objectEvents) {
+                    tag.addEventListener(event, objectEvents[event]);
+                }
+
+                //если есть необходимость - добавляем родиетльский элемент
+                if (objectParentElement != null) {
+                    objectParentElement.appendChild(tag);
+                }    
+
+                //если понадобится этот тег в виде объекта в дальнейшем - функцция возвращет его.
+                return tag;
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////
+            //функция конструктор. Вроде как это должен быть ES5
+
+            function formConstructor(drinkInstance, drinkName) {
+                let form = addTagElement('form', document.querySelector("#formContainer"), {"className": "card"});
+                let fieldset = addTagElement("fieldset", form);
+                
+                addTagElement("label", fieldset, {"className": "name", "textContent": drinkName});
+                //если alko == true, то тернарным оператором выводим лейбл Алкогольный. Если нет - Безалкогольный
+                addTagElement("label", fieldset, 
+                    {
+                        "className": "type", 
+                        "textContent": (drinkInstance.getValue(drinkName).alko)?("Алкогольный"):("Безалкогольный")
+                    }
+                );
+                //
+                let containerIngr= addTagElement("div", fieldset, {"className": "Container", "id": "ingridiente"});
+                addTagElement("label", containerIngr, {"textContent": "Ингридиенты:"});
+                const ingrList = addTagElement("ul", containerIngr);
+                let ingrArray = drinkInstance.getValue(drinkName).ingridientes;
+                for(var ingr of ingrArray) {
+                    addTagElement("li", ingrList, {"textContent": ingr});
+                }
+
+                let containerReceipt = addTagElement("div", fieldset, {"className": "Container", "id": "receipt"});
+                addTagElement("label", containerReceipt, {"textContent": "Рецепт"});
+                addTagElement("textarea", containerReceipt, {"textContent": drinkInstance.getValue(drinkName).receipt});
+            }
+
+            //теперь выводим весь storage объекта drinkStorage через getKeys()
+            for (let key of drinkStorage.getKeys()) {
+                console.log(key);
+                formConstructor(drinkStorage, key);
+            }
+
+            function buttonAdd() {
+                const name = prompt("Введите название напитка")
+                drinkStorage.addValue(
+                    name, 
+                    {
+                        alko: confirm("Является ли он алкогольным"),
+                        ingridientes: prompt("Перечислите через пробел список ингридиентов").split(" "),
+                        receipt: prompt("Напишите рецепт")
+                    }
+                );
+                formConstructor(drinkStorage, name);
+            }
+
+            function buttonGetList() {
+                alert(drinkStorage.getKeys().join(", "));
+            }
+
+            function buttonGetInfo() {
+                const name = prompt("Введите название напитка");
+                if (drinkStorage.getKeys().includes(name)) {
+                    alert(`
+                        Название: ${name}
+                        Алкогольный ли он: ${drinkStorage.getValue(name).alko}
+                        Ингридиенты: ${drinkStorage.getValue(name).ingridientes.join(", ")}
+                        Рецепт: ${drinkStorage.getValue(name).receipt}
+                    `);
+                }
+                else {
+                    alert(`
+                        Такого напитка нет
+                    `);
+                }
+            }
+
+            function buttonDelete() {
+                const name = prompt("Введите название напитка");
+                if (drinkStorage.getKeys().includes(name)) {
+                    drinkStorage.deleteValue(name);
+                    alert("Успешно удалено");
+                }
+                else {
+                    alert(`
+                        Такого напитка нет
+                    `);
+                }
+            }
+            
+        </script>
+    </body>
+</html>
